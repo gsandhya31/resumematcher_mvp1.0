@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 
 // NOTE: In Lovable projects, these values are usually injected at build-time.
 // This wrapper adds a safe fallback to prevent a blank screen if env injection fails.
@@ -15,10 +14,11 @@ const envKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefin
 const supabaseUrl = envUrl || (envProjectId ? `https://${envProjectId}.supabase.co` : FALLBACK_URL);
 const supabaseKey = envKey || FALLBACK_PUBLISHABLE_KEY;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
   },
 });
+
