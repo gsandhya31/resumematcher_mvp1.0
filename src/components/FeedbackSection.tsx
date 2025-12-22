@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface FeedbackSectionProps {
   onSubmitSuccess?: () => void;
@@ -30,7 +30,7 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('analysis_feedback')
         .insert([{ rating: rating, comment: comment }]);
 
