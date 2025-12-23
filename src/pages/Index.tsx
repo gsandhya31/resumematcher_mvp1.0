@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { ResumeUpload } from "@/components/ResumeUpload";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle, Lightbulb, Copy, Check, Info } from "lucide-react";
+import { FileSearch, Sparkles, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import FeedbackSection from "@/components/FeedbackSection";
@@ -17,22 +16,9 @@ interface TokenUsage {
   total: number;
 }
 
-interface RewriteSuggestion {
-  original_text: string;
-  suggested_rewrite: string;
-}
-
-interface AnalysisNote {
-  type: "ambiguity" | "warning";
-  text: string;
-  note: string;
-}
-
 interface AnalysisResult {
   matchedSkills: string[];
   missingSkills: string[];
-  rewrite_suggestions?: RewriteSuggestion[];
-  analysis_notes?: AnalysisNote[];
   usage?: TokenUsage;
 }
 
@@ -49,30 +35,11 @@ const calculateCostINR = (usage: TokenUsage): string => {
 const Index = () => {
   const [resumeText, setResumeText] = useState<string>("");
   const [jobDescription, setJobDescription] = useState<string>("");
-  const [companyName, setCompanyName] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const handleCopySuggestion = async (text: string, index: number) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedIndex(index);
-      toast({
-        title: "Copied!",
-        description: "Suggestion copied to clipboard",
-      });
-      setTimeout(() => setCopiedIndex(null), 2000);
-    } catch (err) {
-      toast({
-        title: "Copy failed",
-        description: "Could not copy to clipboard",
-        variant: "destructive",
-      });
-    }
-  };
 
   // Auto-scroll to results when analysis is complete
   useEffect(() => {
@@ -92,7 +59,7 @@ const Index = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('analyze-resume', {
-        body: { resumeText, jobDescription, companyName }
+        body: { resumeText, jobDescription }
       });
 
       console.log("Response received:", data);
@@ -210,26 +177,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Company Name Section */}
-        <div className="mt-10">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-muted-foreground" />
-              <label className="text-sm font-medium text-foreground">
-                Target Company Name (Optional)
-              </label>
-            </div>
-            <Input
-              placeholder="e.g., Google, Meta, Stripe..."
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className="max-w-md"
-            />
-            <p className="text-xs text-muted-foreground">
-              Enter company name to get LinkedIn networking suggestions.
-            </p>
-          </div>
-        </div>
 
         {/* Analyze Button */}
         <div className="mt-12 text-center">
@@ -270,32 +217,6 @@ const Index = () => {
               Analysis Results
             </h2>
 
-            {/* Analysis Notes Banner */}
-            {analysisResult.analysis_notes && analysisResult.analysis_notes.length > 0 ? (
-              <div className="mb-6 p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10">
-                <div className="flex items-center gap-2 mb-3">
-                  <Info className="w-5 h-5 text-yellow-600" />
-                  <h3 className="font-semibold text-yellow-700 dark:text-yellow-500">
-                    ⚠️ Analysis Notes: {analysisResult.analysis_notes.length} item{analysisResult.analysis_notes.length > 1 ? 's' : ''} need your attention
-                  </h3>
-                </div>
-                <div className="space-y-3">
-                  {analysisResult.analysis_notes.map((note, index) => (
-                    <div key={index} className="pl-7 text-sm">
-                      <span className="font-bold text-foreground">"{note.text}"</span>
-                      <span className="text-muted-foreground"> — {note.note}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="mb-6 p-4 rounded-lg border border-success/30 bg-success/10">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-success" />
-                  <span className="font-medium text-success">✅ Analysis completed with high confidence.</span>
-                </div>
-              </div>
-            )}
 
             {/* Side-by-Side Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -351,59 +272,6 @@ const Index = () => {
               </Card>
             </div>
 
-            {/* Suggested Improvements Section */}
-            <div className="mt-8">
-              <Card className="border-primary/30 bg-primary/5">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <Lightbulb className="w-5 h-5" />
-                    Suggested Improvements
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {analysisResult.rewrite_suggestions && analysisResult.rewrite_suggestions.length > 0 ? (
-                    <div className="space-y-4">
-                      {analysisResult.rewrite_suggestions.map((suggestion, index) => (
-                        <div key={index} className="p-4 rounded-lg bg-background border border-border">
-                          <div className="mb-3">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Original</span>
-                            <p className="mt-1 text-sm text-muted-foreground italic">
-                              "{suggestion.original_text}"
-                            </p>
-                          </div>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <span className="text-xs font-medium text-primary uppercase tracking-wide">Suggestion</span>
-                              <p className="mt-1 text-sm text-foreground font-medium">
-                                "{suggestion.suggested_rewrite}"
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopySuggestion(suggestion.suggested_rewrite, index)}
-                              className="shrink-0 h-8 w-8 p-0"
-                              aria-label="Copy suggestion"
-                            >
-                              {copiedIndex === index ? (
-                                <Check className="w-4 h-4 text-success" />
-                              ) : (
-                                <Copy className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-success">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <p className="font-medium text-sm">Your resume language already aligns well with this JD.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Safety Disclaimer */}
             <p className="mt-6 text-xs text-muted-foreground text-center">

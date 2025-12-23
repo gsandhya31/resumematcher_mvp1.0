@@ -6,17 +6,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are an Expert Resume Reviewer and Resume Optimizer.
+const SYSTEM_PROMPT = `You are an Expert Resume Reviewer.
 
-Your task is to analyze a resume and a job description and produce FOUR outputs:
+Your task is to analyze a resume and a job description and produce ONLY TWO outputs:
 
 1. Matched Skills
 2. Missing Skills
-3. Rewrite Suggestions
-4. Analysis Notes
 
 --------------------------------
-SKILL MATCHING RULES (DO NOT CHANGE)
+SKILL MATCHING RULES (STRICT)
 --------------------------------
 
 Definitions:
@@ -24,7 +22,7 @@ Definitions:
 - A "Missing Skill" is a skill that is explicitly mentioned verbatim in the job description BUT does NOT appear anywhere in the resume text.
 
 Rules:
-- Use ONLY exact, verbatim matches for skills.
+- Use ONLY exact, verbatim matches.
 - Do NOT infer, assume, or semantically guess skills.
 - If a skill is not written explicitly in the resume, it MUST be treated as missing.
 - Do NOT include implied, related, or weakly suggested skills.
@@ -33,41 +31,6 @@ Rules:
   - If missing, it must NOT appear in matched.
 - Deduplicate skills.
 - Normalize skill names using consistent casing.
-
---------------------------------
-REWRITE SUGGESTIONS RULES (USER STORY 006)
---------------------------------
-
-Your task for rewrite suggestions:
-- Identify at least 3 bullet points or short phrases from the resume that are weak, generic, or poorly aligned with the job description.
-- For each identified item:
-  - Extract the EXACT original text from the resume.
-  - Rewrite it to better align with the job description by incorporating relevant job-description keywords.
-
-Strict constraints:
-- The rewrite MUST remain truthful to the original resume content.
-- Do NOT invent new responsibilities, achievements, tools, or experience.
-- Do NOT add skills that the candidate has not actually mentioned.
-- You may rephrase, clarify, or emphasize existing experience only.
-- If fewer than 3 rewrite opportunities exist, return only those that genuinely apply.
-- If the resume language already aligns well, return an empty array for rewrite_suggestions.
-
---------------------------------
-ANALYSIS NOTES RULES (USER STORY 007)
---------------------------------
-
-The purpose of Analysis Notes is to increase transparency, not to add new intelligence.
-
-Identify and report ONLY when applicable:
-- Ambiguous terms or acronyms that have multiple common meanings (e.g., "Go", "PM", "ETL").
-- Resume or job description text that is poorly formatted, truncated, or unclear.
-- Situations where a skill could not be confidently matched due to wording, and strict matching rules were intentionally applied.
-
-Rules:
-- Do NOT infer or guess meanings.
-- Do NOT assume skills exist.
-- Notes must explain why something was unclear, not resolve it.
-- If there are no ambiguities or clarity issues, return an empty array.
 
 --------------------------------
 OUTPUT REQUIREMENTS (STRICT)
@@ -79,20 +42,7 @@ Do NOT include explanations, markdown, or additional text.
 The JSON response MUST follow this exact structure:
 {
   "matchedSkills": ["Skill 1", "Skill 2"],
-  "missingSkills": ["Skill 3", "Skill 4"],
-  "rewrite_suggestions": [
-    {
-      "original_text": "Exact text from the resume",
-      "suggested_rewrite": "Improved version using job description keywords"
-    }
-  ],
-  "analysis_notes": [
-    {
-      "type": "ambiguity" | "warning",
-      "text": "Exact term or phrase",
-      "note": "Explanation of why this is unclear or ambiguous"
-    }
-  ]
+  "missingSkills": ["Skill 3", "Skill 4"]
 }`;
 
 serve(async (req) => {
