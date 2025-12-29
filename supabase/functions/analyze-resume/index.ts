@@ -12,6 +12,24 @@ const SYSTEM_PROMPT = `You are an Expert Resume-JD Matching System.
 Your task is to analyze a resume against a job description and produce a comprehensive skill analysis.
 
 ================================
+YEARS OF EXPERIENCE EXTRACTION
+================================
+
+1. EXTRACT from Resume:
+   - Calculate total years of work experience by summing all employment periods
+   - Look for: date ranges (2020-2024), duration statements ("3 years"), total experience mentioned
+   - Example: "2020-2022" + "2022-2024" = 4 years total
+
+2. EXTRACT from Job Description:
+   - Look for experience requirements: "5+ years", "minimum 7 years", "3-5 years experience"
+   - This is ALWAYS a must-have requirement if mentioned
+
+3. COMPARISON:
+   - If resume shows fewer years than JD requires → add "X+ years experience" to mustHave missing
+   - If resume meets or exceeds requirement → do not flag
+   - If unclear from resume → assume insufficient and flag as missing
+
+================================
 SKILL MATCHING RULES (NUANCED)
 ================================
 
