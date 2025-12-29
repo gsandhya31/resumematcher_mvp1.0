@@ -40,9 +40,8 @@ Link : https://resume-sparkle-uploade.lovable.app/
 [List US-8/9 and beyond]
 ```
 
-### LinkedIn Post Template
-```
-🚀 Just shipped my Resume-JD Matcher MVP!
+### 
+
 
 As an AI Product Manager, I wanted to showcase my skills by building something practical.
 
