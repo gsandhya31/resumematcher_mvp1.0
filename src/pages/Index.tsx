@@ -387,7 +387,10 @@ const Index = () => {
             <FeedbackSection />
 
             {/* Metrics Panel - Footer */}
-            {analysisResult.usage && (
+            {analysisResult.usage && 
+             analysisResult.usage.input !== undefined && 
+             analysisResult.usage.output !== undefined && 
+             analysisResult.usage.total !== undefined && (
               <div className="mt-4 text-center">
                 <p className="text-xs text-muted-foreground">
                   Tokens: {analysisResult.usage.input} in / {analysisResult.usage.output} out / {analysisResult.usage.total} total | Est. Cost: ₹{calculateCostINR(analysisResult.usage)}
