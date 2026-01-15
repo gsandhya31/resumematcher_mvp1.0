@@ -49,9 +49,9 @@ const MIN_JD_LENGTH = 100;
 const MAX_JD_LENGTH = 10000;
 
 interface TokenUsage {
-  input: number;
-  output: number;
-  total: number;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
 }
 
 interface MatchedSkill {
@@ -77,8 +77,8 @@ interface AnalysisResult {
 // GPT-4o-mini pricing: $0.15/1M input, $0.60/1M output
 // 1 USD = 85 INR
 const calculateCostINR = (usage: TokenUsage): string => {
-  const inputCostUSD = (usage.input / 1_000_000) * 0.15;
-  const outputCostUSD = (usage.output / 1_000_000) * 0.60;
+  const inputCostUSD = (usage.prompt_tokens / 1_000_000) * 0.15;
+  const outputCostUSD = (usage.completion_tokens / 1_000_000) * 0.60;
   const totalCostUSD = inputCostUSD + outputCostUSD;
   const totalCostINR = totalCostUSD * 85;
   return totalCostINR.toFixed(4);
@@ -388,12 +388,12 @@ const Index = () => {
 
             {/* Metrics Panel - Footer */}
             {analysisResult.usage && 
-             analysisResult.usage.input !== undefined && 
-             analysisResult.usage.output !== undefined && 
-             analysisResult.usage.total !== undefined && (
+             analysisResult.usage.prompt_tokens !== undefined && 
+             analysisResult.usage.completion_tokens !== undefined && 
+             analysisResult.usage.total_tokens !== undefined && (
               <div className="mt-4 text-center">
                 <p className="text-xs text-muted-foreground">
-                  Tokens: {analysisResult.usage.input} in / {analysisResult.usage.output} out / {analysisResult.usage.total} total | Est. Cost: ₹{calculateCostINR(analysisResult.usage)}
+                  Tokens: {analysisResult.usage.prompt_tokens} in / {analysisResult.usage.completion_tokens} out / {analysisResult.usage.total_tokens} total | Est. Cost: ₹{calculateCostINR(analysisResult.usage)}
                 </p>
               </div>
             )}
