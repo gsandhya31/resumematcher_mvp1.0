@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
         day: 'numeric',
         month: 'short',
         year: 'numeric',
-      }).toLowerCase()
+      })
     ),
   },
 }));
